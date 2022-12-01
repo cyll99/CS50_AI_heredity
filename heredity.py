@@ -139,9 +139,112 @@ def joint_probability(people, one_gene, two_genes, have_trait):
         * everyone in set `have_trait` has the trait, and
         * everyone not in set` have_trait` does not have the trait.
     """
-    raise NotImplementedError
+    joint_probability = 0
+    for person in people:
+        person_probability = 0
+        genre_probability = 0
+        trait_probability = 0
+        mother = person["mother"]
+        father = person["father"]
+        trait = person["trait"]
+
+        if mother is None:
+            if (person not in one_gene and person not in two_genes) : # Probability the person does not have the gene
+                genre_probability = PROBS["gene"][0]
+
+                if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                else:trait_probability = PROBS["trait"][0][True]
+
+                person_probability += genre_probability * trait_probability
+                joint_probability +=  person_probability
+            
+            elif(person is one_gene):   # Probability the personne has one copy of the gene
+                genre_probability = PROBS["gene"][1]
+
+                if person not in have_trait : trait_probability = PROBS["trait"][1][False]
+                else:trait_probability = PROBS["trait"][1][False]
+
+                person_probability += genre_probability * trait_probability
+                joint_probability +=  person_probability
+            else:
+                genre_probability = PROBS["gene"][2]    # Probability the person has two copies of the gene
+
+                if person not in have_trait : trait_probability = PROBS["trait"][2][False]
+                else:trait_probability = PROBS["trait"][2][False]
+
+                person_probability += genre_probability * trait_probability
+                joint_probability +=  person_probability
+        else:
+            if(person not in one_gene and person not in two_genes):
+
+                # Probability the persone do not have the gene given both parents do not either
+                if (mother not in one_gene and mother not in two_genes) and (father not in one_gene and father not in two_genes):
+                    genre_probability = PROBS["gene"][0]
+
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
+                
+                # Probability the person do not have the gene given only one parent does not either
+                elif(mother not in one_gene and mother not in two_genes) or (father not in one_gene and father not in two_genes):
+                    genre_probability = PROBS["gene"][0] * PROBS["mutation"]
+
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
+                
+                else:
+                    # Probability the person do not have the gene given both parents does
+
+                    genre_probability = 2 * PROBS["mutation"]
+                
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
+
+            else:
+                    # Probability the persone has the gene given neither of the parents does 
+                if (mother not in one_gene and mother not in two_genes) and (father not in one_gene and father not in two_genes):
+                    genre_probability =  PROBS["mutation"]
+                
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
+
+                
+                # Probability the person has the gene given only one parent does 
+                elif(mother not in one_gene and mother not in two_genes) or (father not in one_gene and father not in two_genes):
+                    mutation = PROBS["gene"][0]
+
+                    genre_probability = (1 - mutation) * (1 - mutation) + mutation * mutation
+
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
+                
+                else:
+                         # Probability the person has the gene given both parents does
+
+                    genre_probability = 1 - PROBS["mutation"]
+                
+                    if person not in have_trait : trait_probability = PROBS["trait"][0][False]
+                    else:trait_probability = PROBS["trait"][0][True]
+
+                    person_probability += genre_probability * trait_probability
+                    joint_probability +=  person_probability
 
 
+    
 def update(probabilities, one_gene, two_genes, have_trait, p):
     """
     Add to `probabilities` a new joint probability `p`.
